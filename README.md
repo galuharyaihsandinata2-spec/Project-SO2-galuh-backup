@@ -36,6 +36,48 @@ Gambar : https://drive.google.com/file/d/1SJxCpVg15bczUWAhFYcAbwpw6hWfaG6J/view?
 
 `galuh@ubuntu01:~$ nano backup.sh` 
 
+```bash
+#!/bin/bash
+
+# Direktori untuk mencari file dan direktori tujuan backup
+source_directory="/home/user/documents/important_files"
+backup_directory="/home/user/backups"
+log_file="/home/user/logs/backup_log.txt"
+
+# Fungsi untuk mencatat log dengan timestamp
+log_message() {
+  echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> $log_file
+}
+
+# Mencari file yang dimodifikasi dalam 7 hari terakhir dan berekstensi .txt
+find $source_directory -type f -name "*.txt" -mtime -7 > file_to_backup.txt
+
+# Menampilkan file yang ditemukan untuk di-backup
+echo "Files to be backed up:"
+cat file_to_backup.txt
+
+# Membuat arsip tar.gz dengan timestamp
+timestamp=$(date +"%Y%m%d%H%M%S")
+archive_name="backup_$timestamp.tar.gz"
+
+# Melakukan kompresi file dengan tar dan gzip
+echo "Compressing files into $archive_name..."
+tar -czf $backup_directory/$archive_name -T file_to_backup.txt
+
+# Cek apakah kompresi berhasil
+if [ $? -eq 0 ]; then
+  # Jika berhasil, catat log dan beri notifikasi
+  log_message "Backup berhasil: $archive_name"
+  echo "Backup berhasil: $archive_name"
+  notify-send "Backup Sukses" "Backup file berhasil dibuat: $archive_name"
+else
+  # Jika gagal, catat log dan beri notifikasi
+  log_message "Backup gagal"
+  echo "Backup gagal!"
+  notify-send "Backup Gagal" "Terjadi kesalahan saat membuat backup."
+fi
+```
+
 **Penjelasan:** Membuka editor teks `nano` untuk mengedit atau membuat file script `backup.sh`. Pengguna kemungkinan menulis kode script di dalamnya.
 
 **Perintah 7:** 
